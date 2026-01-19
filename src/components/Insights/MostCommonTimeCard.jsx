@@ -8,11 +8,16 @@ const MostCommonTimeCard = ({ mostCommonTime }) => {
         <span>Most Common Time</span>
         {mostCommonTime === null ? (
           <div className="text-center text-gray-500">No data available</div>
-        ) : null}
-        <div className="text-3xl font-semibold">{commonTime}</div>
-        <span className="dark:text-white/70">{commonRange}</span>
+        ) : (
+          <>
+            <div className="text-3xl font-semibold">{commonTime}</div>
+            <span className="dark:text-white/70">{commonRange}</span>
+          </>
+        )}
       </div>
-      <div className="text-6xl flex items-center">🕒</div>
+      {mostCommonTime !== null && (
+        <div className="text-6xl flex items-center">🕒</div>
+      )}
     </div>
   );
 };

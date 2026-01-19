@@ -39,7 +39,6 @@ function Dashboard() {
 
   useEffect(() => {
     isSidebarOpen && closeSidebar();
-    if (api.loading) return;
     return async () => {
       try {
         // Fetch summary data from backend

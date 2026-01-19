@@ -80,7 +80,7 @@ const Login = () => {
           <span className="ml-2 text-sm">Remember me</span>
         </label>
         <button
-          className="p-3 bg-accent rounded-lg md:w-11/12 w-full hover:brightness-90 mb-8"
+          className="p-3 bg-accent rounded-lg md:w-11/12 w-full hover:brightness-90 mb-8 cursor-pointer transition-all duration-200 flex justify-center items-center"
           disabled={loading}
           type="submit"
         >

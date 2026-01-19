@@ -24,19 +24,22 @@ const AvgMealsPerDayCard = ({ avgMealsPerDay, mealsPerDay, fromDashboard }) => {
       </div>
       {avgMealsPerDay === null || (mealsPerDay && mealsPerDay.length === 0) ? (
         <div className="text-center text-gray-500">No data available</div>
-      ) : null}
-      <div className="text-3xl font-semibold">{avgMealsPerDay}</div>
-      <ResponsiveContainer width="100%" height={60}>
-        <LineChart data={mealsPerDay}>
-          <Line
-            type="monotone"
-            dataKey="count"
-            stroke="#A78BFA"
-            strokeWidth={2}
-            dot={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      ) : (
+        <>
+          <div className="text-3xl font-semibold">{avgMealsPerDay}</div>
+          <ResponsiveContainer width="100%" height={60}>
+            <LineChart data={mealsPerDay}>
+              <Line
+                type="monotone"
+                dataKey="count"
+                stroke="#A78BFA"
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </>
+      )}
     </div>
   );
 };

@@ -14,17 +14,23 @@ const ConsistencyCard = ({
         timeFilter === null ||
         consistencyChangePercent === null ? (
           <div className="text-center text-gray-500">No data available</div>
-        ) : null}
-        <div className="text-3xl font-semibold">
-          {noOfDaysLogged}/{timeFilter} days
-        </div>
-        <div>
-          <IoMdArrowRoundUp className="inline text-accent" />
-          <span className="text-pink-300"> {consistencyChangePercent}% </span>
-          <span className="dark:text-white/70">
-            since last {timeFilter} days
-          </span>
-        </div>
+        ) : (
+          <>
+            <div className="text-3xl font-semibold">
+              {noOfDaysLogged}/{timeFilter} days
+            </div>
+            <div>
+              <IoMdArrowRoundUp className="inline text-accent" />
+              <span className="text-pink-300">
+                {" "}
+                {consistencyChangePercent}%{" "}
+              </span>
+              <span className="dark:text-white/70">
+                since last {timeFilter} days
+              </span>
+            </div>
+          </>
+        )}
       </div>
       <FcCalendar size={40} className="ml-auto" />
     </div>
