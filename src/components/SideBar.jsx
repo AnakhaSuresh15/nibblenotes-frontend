@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useSidebar } from "../contexts/SidebarContext";
 import { PiSidebarSimpleDuotone } from "react-icons/pi";
 import { HiHome } from "react-icons/hi2";
@@ -18,8 +18,8 @@ const SideBar = () => {
   const optionSelected = (option) => {
     setSelectedPage(option);
     localStorage.setItem("currentPage", option);
+    closeSidebar();
     navigate(`/${option}`);
-    isSidebarOpen && closeSidebar();
   };
 
   return (
@@ -30,8 +30,9 @@ const SideBar = () => {
     >
       <button
         className="self-end p-2 right-0 top-0 text-gray-400 dark:hover:text-white hover:brightness-90 hover:bg-secondary focus:outline-none cursor-pointer rounded"
-        onClick={() => {
+        onClick={(e) => {
           isSidebarOpen && closeSidebar();
+          e.stopPropagation();
         }}
       >
         <PiSidebarSimpleDuotone size={24} />
@@ -39,7 +40,10 @@ const SideBar = () => {
       <div className="flex justify-center items-center bg-sidebar-bg mx-8">
         <ul className="flex flex-col justify-around h-full gap-6">
           <li
-            onClick={() => optionSelected("dashboard")}
+            onClick={(e) => {
+              optionSelected("dashboard");
+              e.stopPropagation();
+            }}
             className={`p-3 sidebar-btn ${
               selectedPage === "dashboard" ? "bg-accent" : ""
             }`}
@@ -48,7 +52,10 @@ const SideBar = () => {
             <span className="leading-none">Dashboard</span>
           </li>
           <li
-            onClick={() => optionSelected("create-log")}
+            onClick={(e) => {
+              optionSelected("create-log");
+              e.stopPropagation();
+            }}
             className={`p-3 sidebar-btn ${
               selectedPage === "create-log" ? "bg-accent" : ""
             }`}
@@ -63,7 +70,10 @@ const SideBar = () => {
             Calendar
           </li> */}
           <li
-            onClick={() => optionSelected("insights")}
+            onClick={(e) => {
+              optionSelected("insights");
+              e.stopPropagation();
+            }}
             className={`p-3 sidebar-btn ${
               selectedPage === "insights" ? "bg-accent" : ""
             }`}
@@ -72,7 +82,10 @@ const SideBar = () => {
             <span className="leading-none">Insights</span>
           </li>
           <li
-            onClick={() => optionSelected("recipes")}
+            onClick={(e) => {
+              optionSelected("recipes");
+              e.stopPropagation();
+            }}
             className={`p-3 sidebar-btn ${
               selectedPage === "recipes" ? "bg-accent" : ""
             }`}
@@ -81,7 +94,10 @@ const SideBar = () => {
             <span className="leading-none">Recipes</span>
           </li>
           <li
-            onClick={() => optionSelected("settings")}
+            onClick={(e) => {
+              optionSelected("settings");
+              e.stopPropagation();
+            }}
             className={`p-3 sidebar-btn ${
               selectedPage === "settings" ? "bg-accent" : ""
             }`}

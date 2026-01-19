@@ -80,7 +80,7 @@ function Dashboard() {
           <FaPlus /> &nbsp;Create Log
         </button>
       </div>
-      <i>{formattedDate}</i>
+      <i className="text-text">{formattedDate}</i>
       <div className="flex flex-col">
         <div className="py-3 flex-row flex flex-nowrap justify-between gap-1.5 md:gap-4 md:text-sm text-xs">
           <div className="card basis-1/3 md:p-6 p-3 md:rounded-3xl flex flex-col">

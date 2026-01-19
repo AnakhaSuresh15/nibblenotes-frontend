@@ -41,7 +41,7 @@ const Register = () => {
       const res = await api.post("/auth/register", payload);
       setSuccess("Registration successful. Redirecting to login...");
       // Option A: redirect to login
-      setTimeout(() => navigate("/login"), 900);
+      setTimeout(() => navigate("/login", { replace: true }), 900);
 
       // Option B: auto-login after registration (uncomment if you want auto-login)
       /*
@@ -50,7 +50,7 @@ const Register = () => {
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('user', JSON.stringify(user));
       // then navigate to protected route
-      navigate('/');
+      navigate('/', { replace: true });
       */
     } catch (err) {
       // read backend error message if present
