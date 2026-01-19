@@ -25,3 +25,10 @@ dist-ssr
 
 .env
 .env.*.local
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.next/
+.build/
+.cache/
+.out/   

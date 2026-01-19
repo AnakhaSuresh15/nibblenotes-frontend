@@ -3,7 +3,7 @@ import axios from "axios";
 
 // --- CONFIGURE API INSTANCE ---
 const api = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: `${import.meta.env.VITE_BE_URL}`,
   withCredentials: true, // allow httpOnly refresh cookie to be sent
 });
 
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
           error.response &&
           error.response.status === 401 &&
           !original._retry &&
-          original.url !== "/api/auth/refresh"
+          original.url !== "/auth/refresh"
         ) {
           original._retry = true;
           try {
