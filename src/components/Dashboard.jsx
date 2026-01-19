@@ -39,7 +39,7 @@ function Dashboard() {
 
   useEffect(() => {
     isSidebarOpen && closeSidebar();
-    return async () => {
+    const fetchDashboardData = async () => {
       try {
         // Fetch summary data from backend
         const response = await api.get(
@@ -60,6 +60,7 @@ function Dashboard() {
         toast.error("Failed to fetch dashboard summary. Please try again.");
       }
     };
+    fetchDashboardData();
   }, []);
 
   return (
