@@ -78,7 +78,7 @@ const CreateLog = () => {
     if (!editLog || !logId) return;
     // Fetch existing log data and populate the form
     api
-      .get(`${import.meta.env.VITE_BE_URL}/logs?logId=${logId}`)
+      .get(`${import.meta.env.VITE_BE_URL}/common/logs?logId=${logId}`)
       .then((response) => {
         const log = response.data;
         methods.reset({
@@ -169,9 +169,12 @@ const CreateLog = () => {
           return;
         }
 
-        await api.patch(`${import.meta.env.VITE_BE_URL}/edit-log/${logId}`, {
-          ...updatedFields,
-        });
+        await api.patch(
+          `${import.meta.env.VITE_BE_URL}/common/edit-log/${logId}`,
+          {
+            ...updatedFields,
+          }
+        );
         toast.success("Log edited successfully!");
         navigate("/dashboard");
       } catch (error) {

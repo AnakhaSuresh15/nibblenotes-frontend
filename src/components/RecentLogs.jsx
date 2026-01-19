@@ -30,7 +30,9 @@ const RecentLogs = ({ recentMeals, setRecentMeals }) => {
 
   const deleteLog = async (logId) => {
     try {
-      await api.delete(`${import.meta.env.VITE_BE_URL}/delete-log/${logId}`);
+      await api.delete(
+        `${import.meta.env.VITE_BE_URL}/common/delete-log/${logId}`
+      );
       toast.success("Log deleted successfully");
       setRecentMeals((prev) => prev.filter((log) => log._id !== logId));
     } catch (e) {

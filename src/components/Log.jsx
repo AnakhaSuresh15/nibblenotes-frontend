@@ -52,7 +52,9 @@ const Log = () => {
     if (isBulkDelete && checkedItems.length > 1) {
       try {
         await api.delete(
-          `${import.meta.env.VITE_BE_URL}/delete-logs?logs=${checkedItems}`
+          `${
+            import.meta.env.VITE_BE_URL
+          }/common/delete-logs?logs=${checkedItems}`
         );
         toast.success("Logs deleted successfully");
       } catch (e) {
@@ -61,7 +63,7 @@ const Log = () => {
     } else if (checkedItems.length === 1 || logId) {
       try {
         await api.delete(
-          `${import.meta.env.VITE_BE_URL}/delete-log/${
+          `${import.meta.env.VITE_BE_URL}/common/delete-log/${
             logId || checkedItems[0]
           }`
         );
@@ -101,7 +103,7 @@ const Log = () => {
     const fetchLog = async () => {
       try {
         const response = await api.get(
-          `${import.meta.env.VITE_BE_URL}/logs?date=${dateISOString}`
+          `${import.meta.env.VITE_BE_URL}/common/logs?date=${dateISOString}`
         );
         setLogsForDate(response.data);
       } catch (error) {

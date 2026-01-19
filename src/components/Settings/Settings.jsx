@@ -20,7 +20,7 @@ const Settings = () => {
     const fetchSettings = async () => {
       try {
         const response = await api.get(
-          `${import.meta.env.VITE_BE_URL}/settings`
+          `${import.meta.env.VITE_BE_URL}/common/settings`
         );
         setSettings(response.data);
       } catch (error) {

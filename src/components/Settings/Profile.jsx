@@ -12,7 +12,7 @@ const Profile = ({ settings }) => {
   const [showFutureFeature, setShowFutureFeature] = useState(false);
   const onSaveChanges = async () => {
     try {
-      await api.post(`${import.meta.env.VITE_BE_URL}/update-settings`, {
+      await api.post(`${import.meta.env.VITE_BE_URL}/common/update-settings`, {
         name: formData.name,
         email: formData.email,
       });

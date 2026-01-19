@@ -3,7 +3,7 @@ import axios from "axios";
 
 // --- CONFIGURE API INSTANCE ---
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BE_URL,
+  baseURL: `${import.meta.env.VITE_BE_URL}/api`,
   withCredentials: true,
 });
 

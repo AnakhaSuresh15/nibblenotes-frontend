@@ -28,7 +28,7 @@ const Insights = () => {
         const data = await api.get(
           `${
             import.meta.env.VITE_BE_URL
-          }/insights-data?timeFilter=${timeFilter}`
+          }/common/insights-data?timeFilter=${timeFilter}`
         );
         if (data) {
           setInsightsData(data.data);
