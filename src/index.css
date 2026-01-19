@@ -1,0 +1,151 @@
+/* src/index.css */
+
+/* --- Tailwind v4 imports --- */
+@import "tailwindcss/preflight";
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+
+/* external libraries */
+@import "react-calendar/dist/Calendar.css";
+@import "react-datepicker/dist/react-datepicker.css";
+
+/* custom-variant: make 'dark:' respond to data-theme="dark" */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/* ---------------------------
+   CSS variables (light theme)
+   --------------------------- */
+:root {
+  --color-sidebar-bg: #ffffff;
+  --color-cards-bg: #ffffff;
+  --color-cards-hover-bg: #f9fafb;
+  --color-primary: #ffffff;
+  --color-text: #111827;
+  --color-accent: #ffd3da;
+  --color-accent-secondary: #ffc7a8;
+  --color-secondary: #f3f4f6;
+  --color-login-bg: #fffcfd;
+  --color-login-card-bg: #fefefe;
+  --color-calendar-tile-disable-bg: #f0f0f0;
+}
+
+/* Dark theme variables using data-theme */
+[data-theme="dark"] {
+  --color-sidebar-bg: #1b1b1b;
+  --color-cards-bg: #1a1a1a;
+  --color-cards-hover-bg: #27272a;
+  --color-primary: #101010;
+  --color-text: #f1f5f9;
+  --color-accent: #5641f5;
+  --color-accent-secondary: #8a41f5;
+  --color-secondary: #1f1f1f;
+  --color-login-bg: #101010;
+  --color-login-card-bg: #1a1a1a;
+  --color-calendar-tile-disable-bg: #000000;
+}
+
+/* fallback utility in case Tailwind doesn't emit .bg-primary */
+.bg-primary {
+  background-color: var(--color-primary);
+}
+.bg-accent {
+  background-color: var(--color-accent);
+}
+.bg-accent-secondary {
+  background-color: var(--color-accent-secondary);
+}
+.bg-login-card-bg {
+  background-color: var(--color-login-card-bg);
+}
+.text-text {
+  color: var(--color-text);
+}
+.bg-cards-bg {
+  background-color: var(--color-cards-bg);
+}
+.bg-color-secondary {
+  background-color: var(--color-secondary);
+}
+.text-accent {
+  color: var(--color-accent);
+}
+.text-accent-secondary {
+  color: var(--color-accent-secondary);
+}
+
+/* Tailwind components layer usage */
+@layer components {
+  .card {
+    @apply bg-[#ffffff] dark:bg-[#1a1a1a] border dark:border-none border-gray-400 dark:hover:bg-[var(--color-cards-hover-bg)] hover:bg-gray-50 shadow-md dark:text-gray-100 text-zinc-600;
+  }
+
+  .sidebar-btn {
+    @apply dark:text-gray-300 dark:hover:text-white hover:text-zinc-800 hover:bg-[--color-secondary] focus:outline-none cursor-pointer p-3 rounded flex flex-row gap-1.5;
+  }
+}
+
+/* page layout */
+#root,
+html,
+body {
+  height: 100%;
+}
+
+/* react-calendar tweaks */
+.react-calendar {
+  background-color: var(--color-cards-bg);
+  border: none;
+}
+
+/* nested rules for react-calendar (kept from your original file) */
+.react-calendar__tile--now:enabled:hover,
+.react-calendar__tile--now:enabled:focus,
+.react-calendar__tile--now {
+  background-color: var(--color-accent);
+  color: var(--color-primary);
+}
+
+/* rest of calendar styles... (kept) */
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: var(--color-accent-secondary);
+  color: var(--color-text);
+}
+
+.react-calendar__month-view__days__day,
+.react-calendar__month-view__weekdays__weekday,
+.react-calendar__navigation {
+  color: var(--color-text);
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: #dcdcdc;
+  color: black;
+}
+
+/* small responsive tweak */
+@media (max-width: 768px) {
+  .react-calendar__navigation__label {
+    font-size: 0.8rem;
+  }
+}
+
+/* react-datepicker */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+.react-datepicker-wrapper input {
+  padding-left: 8px;
+}
+
+.react-calendar__tile:disabled,
+.react-calendar__navigation button:disabled {
+  background-color: var(--color-calendar-tile-disable-bg);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
