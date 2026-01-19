@@ -38,14 +38,14 @@ const Register = () => {
     setLoading(true);
     try {
       const payload = { firstName, lastName, email, password };
-      const res = await api.post("/api/auth/register", payload);
+      const res = await api.post("/auth/register", payload);
       setSuccess("Registration successful. Redirecting to login...");
       // Option A: redirect to login
       setTimeout(() => navigate("/login"), 900);
 
       // Option B: auto-login after registration (uncomment if you want auto-login)
       /*
-      const loginRes = await api.post('/api/auth/login', { email, password, remember: true });
+      const loginRes = await api.post('/auth/login', { email, password, remember: true });
       const { accessToken, user } = loginRes.data;
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('user', JSON.stringify(user));

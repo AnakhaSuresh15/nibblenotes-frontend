@@ -3,7 +3,7 @@ import axios from "axios";
 
 // --- CONFIGURE API INSTANCE ---
 const api = axios.create({
-  baseURL: `${import.meta.env.VITE_BE_URL}/api`,
+  baseURL: `${import.meta.env.VITE_BE_URL}`,
   withCredentials: true,
 });
 
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
   // 🔴 LOGOUT HELPER (used in interceptor too)
   const hardLogout = async () => {
     try {
-      await api.post("/api/auth/logout");
+      await api.post("/auth/logout");
     } catch {}
     setUser(null);
     setAccessToken(null);
@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }) => {
         // 🔴 If refresh itself failed → STOP EVERYTHING
         if (
           error.response?.status === 401 &&
-          original.url?.includes("/api/auth/refresh")
+          original.url?.includes("/auth/refresh")
         ) {
           await hardLogout();
           return Promise.reject(error);
@@ -91,12 +91,12 @@ export const AuthProvider = ({ children }) => {
         if (
           error.response?.status === 401 &&
           !original._retry &&
-          !original.url?.includes("/api/auth/refresh")
+          !original.url?.includes("/auth/refresh")
         ) {
           original._retry = true;
 
           try {
-            const r = await api.post("/api/auth/refresh");
+            const r = await api.post("/auth/refresh");
             const newToken = r.data?.accessToken;
             const maybeUser = r.data?.user;
 
@@ -133,7 +133,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await api.post("/api/auth/refresh");
+        const res = await api.post("/auth/refresh");
         const token = res.data?.accessToken;
         const maybeUser = res.data?.user;
 
@@ -159,7 +159,7 @@ export const AuthProvider = ({ children }) => {
 
   // --- PUBLIC METHODS ---
   const login = async ({ email, password, remember }) => {
-    const res = await api.post("/api/auth/login", {
+    const res = await api.post("/auth/login", {
       email,
       password,
       remember,
