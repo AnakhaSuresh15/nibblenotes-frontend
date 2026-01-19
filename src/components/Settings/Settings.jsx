@@ -9,7 +9,6 @@ import Preferences from "./Preferences";
 import Account from "./Account";
 import Notifications from "./Notifications";
 import { useAuth } from "../../contexts/AuthContext";
-import { set } from "react-hook-form";
 
 const Settings = () => {
   const { isSidebarOpen } = useSidebar();

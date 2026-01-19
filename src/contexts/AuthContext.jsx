@@ -3,15 +3,16 @@ import axios from "axios";
 
 // --- CONFIGURE API INSTANCE ---
 const api = axios.create({
-  baseURL: `${import.meta.env.VITE_BE_URL}`,
-  withCredentials: true, // allow httpOnly refresh cookie to be sent
+  baseURL: import.meta.env.VITE_BE_URL,
+  withCredentials: true,
 });
 
-// --- HELPERS ---
+// --- STORAGE KEYS ---
 const ACCESS_KEY = "nibble_access_token";
 const USER_KEY = "nibble_user";
 const REMEMBER_KEY = "nibble_remember";
 
+// --- HELPERS ---
 const readStoredAccessToken = () =>
   localStorage.getItem(ACCESS_KEY) || sessionStorage.getItem(ACCESS_KEY);
 
@@ -27,8 +28,10 @@ const clearStoredAccessToken = () => {
 
 const storeUser = (user, remember) => {
   if (!user) return;
-  if (remember) localStorage.setItem(USER_KEY, JSON.stringify(user));
-  else sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+  const s = JSON.stringify(user);
+  remember
+    ? localStorage.setItem(USER_KEY, s)
+    : sessionStorage.setItem(USER_KEY, s);
 };
 
 const readStoredUser = () => {
@@ -41,152 +44,18 @@ const clearStoredUser = () => {
   sessionStorage.removeItem(USER_KEY);
 };
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(readStoredUser());
-  const [loading, setLoading] = useState(true); // while trying to restore session
   const [accessToken, setAccessToken] = useState(readStoredAccessToken());
+  const [loading, setLoading] = useState(true);
 
-  // --- axios interceptors: register once on mount and clean up ---
-  useEffect(() => {
-    // Request interceptor
-    const reqInterceptor = api.interceptors.request.use(
-      (config) => {
-        const token = readStoredAccessToken() || accessToken;
-        if (token) config.headers["Authorization"] = `Bearer ${token}`;
-        return config;
-      },
-      (err) => Promise.reject(err)
-    );
-
-    // Response interceptor
-    const resInterceptor = api.interceptors.response.use(
-      (res) => res,
-      async (error) => {
-        const original = error.config;
-        if (
-          error.response &&
-          error.response.status === 401 &&
-          !original._retry &&
-          original.url !== "/auth/refresh"
-        ) {
-          original._retry = true;
-          try {
-            const r = await api.post("/api/auth/refresh");
-            const newToken = r.data?.accessToken;
-            const maybeUser = r.data?.user;
-            if (newToken) {
-              const remember = localStorage.getItem(REMEMBER_KEY) === "true";
-              setAccessToken(newToken);
-              storeAccessToken(newToken, remember);
-              if (maybeUser) {
-                setUser(maybeUser);
-                storeUser(maybeUser, remember);
-              }
-              original.headers["Authorization"] = `Bearer ${newToken}`;
-              return api(original);
-            }
-          } catch (e) {
-            // refresh failed -> fall through and reject
-            console.warn(
-              "Refresh during interceptor failed",
-              e?.response?.data || e.message
-            );
-          }
-        }
-        return Promise.reject(error);
-      }
-    );
-
-    // Cleanup function to eject interceptors
-    return () => {
-      api.interceptors.request.eject(reqInterceptor);
-      api.interceptors.response.eject(resInterceptor);
-    };
-  }, []);
-
-  // --- Try to restore session on mount ---
-  useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-
-        // Try refreshing with cookie (preferred). If refresh returns user, use it.
-        try {
-          const refreshRes = await api.post(
-            "/api/auth/refresh",
-            {},
-            { withCredentials: true }
-          );
-          const token = refreshRes.data?.accessToken;
-          const maybeUser = refreshRes.data?.user;
-
-          if (token) {
-            const remember = localStorage.getItem(REMEMBER_KEY) === "true";
-            setAccessToken(token);
-            storeAccessToken(token, remember);
-
-            if (maybeUser) {
-              setUser(maybeUser);
-              storeUser(maybeUser, remember);
-            } else {
-              // no user returned: fallback to previously stored user
-              const stored = readStoredUser();
-              if (stored) setUser(stored);
-            }
-
-            setLoading(false);
-            return;
-          }
-        } catch (err) {
-          // refresh failed (no cookie or invalid). We'll fallback below.
-          console.info(
-            "Refresh on startup failed (this may be normal if not logged in)."
-          );
-        }
-
-        // Fallback: restore from stored tokens/user (if present)
-        const storedToken = readStoredAccessToken();
-        const storedUser = readStoredUser();
-        if (storedToken && storedUser) {
-          setAccessToken(storedToken);
-          setUser(storedUser);
-        } else {
-          // no session
-          setUser(null);
-          clearStoredAccessToken();
-          clearStoredUser();
-        }
-      } finally {
-        setLoading(false);
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // --- public methods ---
-  const login = async ({ email, password, remember = false }) => {
-    const res = await api.post("/api/auth/login", {
-      email,
-      password,
-      remember,
-    });
-    const { accessToken: token, user: u } = res.data;
-    setAccessToken(token);
-    setUser(u);
-    localStorage.setItem(REMEMBER_KEY, remember ? "true" : "false");
-    storeAccessToken(token, remember);
-    storeUser(u, remember);
-    return u;
-  };
-
-  const logout = async () => {
+  // 🔴 LOGOUT HELPER (used in interceptor too)
+  const hardLogout = async () => {
     try {
       await api.post("/api/auth/logout");
-    } catch (e) {
-      // ignore network errors
-    }
+    } catch {}
     setUser(null);
     setAccessToken(null);
     clearStoredAccessToken();
@@ -194,18 +63,128 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem(REMEMBER_KEY);
   };
 
+  // --- INTERCEPTORS ---
+  useEffect(() => {
+    const reqInterceptor = api.interceptors.request.use((config) => {
+      const token = readStoredAccessToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    });
+
+    const resInterceptor = api.interceptors.response.use(
+      (res) => res,
+      async (error) => {
+        const original = error.config;
+
+        // 🔴 If refresh itself failed → STOP EVERYTHING
+        if (
+          error.response?.status === 401 &&
+          original.url?.includes("/api/auth/refresh")
+        ) {
+          await hardLogout();
+          return Promise.reject(error);
+        }
+
+        // 🔴 Retry once for normal API calls
+        if (
+          error.response?.status === 401 &&
+          !original._retry &&
+          !original.url?.includes("/api/auth/refresh")
+        ) {
+          original._retry = true;
+
+          try {
+            const r = await api.post("/api/auth/refresh");
+            const newToken = r.data?.accessToken;
+            const maybeUser = r.data?.user;
+
+            if (!newToken) throw new Error("No token from refresh");
+
+            const remember = localStorage.getItem(REMEMBER_KEY) === "true";
+            setAccessToken(newToken);
+            storeAccessToken(newToken, remember);
+
+            if (maybeUser) {
+              setUser(maybeUser);
+              storeUser(maybeUser, remember);
+            }
+
+            original.headers.Authorization = `Bearer ${newToken}`;
+            return api(original);
+          } catch (e) {
+            await hardLogout();
+            return Promise.reject(e);
+          }
+        }
+
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      api.interceptors.request.eject(reqInterceptor);
+      api.interceptors.response.eject(resInterceptor);
+    };
+  }, []);
+
+  // --- STARTUP REFRESH (RUN ONCE) ---
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await api.post("/api/auth/refresh");
+        const token = res.data?.accessToken;
+        const maybeUser = res.data?.user;
+
+        if (token) {
+          const remember = localStorage.getItem(REMEMBER_KEY) === "true";
+          setAccessToken(token);
+          storeAccessToken(token, remember);
+
+          if (maybeUser) {
+            setUser(maybeUser);
+            storeUser(maybeUser, remember);
+          }
+        } else {
+          await hardLogout();
+        }
+      } catch {
+        await hardLogout();
+      } finally {
+        setLoading(false); // 🔴 ALWAYS stop loading
+      }
+    })();
+  }, []);
+
+  // --- PUBLIC METHODS ---
+  const login = async ({ email, password, remember }) => {
+    const res = await api.post("/api/auth/login", {
+      email,
+      password,
+      remember,
+    });
+
+    const { accessToken: token, user } = res.data;
+    setAccessToken(token);
+    setUser(user);
+    localStorage.setItem(REMEMBER_KEY, remember ? "true" : "false");
+    storeAccessToken(token, remember);
+    storeUser(user, remember);
+    return user;
+  };
+
   const value = {
     user,
     loading,
     login,
-    logout,
-    api, // export axios instance for convenient API calls
-    getAccessToken: () => accessToken || readStoredAccessToken(),
+    logout: hardLogout,
+    api,
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading ? children : <div>Loading...</div>}
+      {loading ? <div>Loading...</div> : children}
     </AuthContext.Provider>
   );
 };

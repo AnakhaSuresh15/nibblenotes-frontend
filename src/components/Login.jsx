@@ -92,7 +92,8 @@ const Login = () => {
             here
           </Link>
         </span>
-        <span className="text-sm">Login as a Guest</span>
+        {/* Future Feature: */}
+        {/* <span className="text-sm">Login as a Guest</span> */}
       </form>
     </div>
   );
