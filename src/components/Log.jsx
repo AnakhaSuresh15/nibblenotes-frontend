@@ -12,6 +12,7 @@ import { TbEdit } from "react-icons/tb";
 import { MdDelete } from "react-icons/md";
 import ConfirmationDialog from "./ConfirmationDialog";
 import { isMobile } from "react-device-detect";
+import Loader from "./Loader";
 
 const Log = () => {
   const { isSidebarOpen } = useSidebar();
@@ -29,6 +30,7 @@ const Log = () => {
   const [selectedLogId, setSelectedLogId] = useState(null);
   const [dialogType, setDialogType] = useState(null); // "delete" | "edit"
   const [isBulkDelete, setIsBulkDelete] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const openDeleteDialog = (logId, logs) => {
     if (logId) {
@@ -51,25 +53,31 @@ const Log = () => {
   const deleteLog = async (logId) => {
     if (isBulkDelete && checkedItems.length > 1) {
       try {
+        setLoading(true);
         await api.delete(
           `${
             import.meta.env.VITE_BE_URL
-          }/common/delete-logs?logs=${checkedItems}`
+          }/common/delete-logs?logs=${checkedItems}`,
         );
         toast.success("Logs deleted successfully");
       } catch (e) {
         toast.error("Failed to delete the logs. Please try again later.");
+      } finally {
+        setLoading(false);
       }
     } else if (checkedItems.length === 1 || logId) {
       try {
+        setLoading(true);
         await api.delete(
           `${import.meta.env.VITE_BE_URL}/common/delete-log/${
             logId || checkedItems[0]
-          }`
+          }`,
         );
         toast.success("Log deleted successfully");
       } catch (e) {
         toast.error("Failed to delete the log. Please try again later.");
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -101,14 +109,17 @@ const Log = () => {
   useEffect(() => {
     // Check if log exists for the selected date
     const fetchLog = async () => {
+      setLoading(true);
       try {
         const response = await api.get(
-          `${import.meta.env.VITE_BE_URL}/common/logs?date=${dateISOString}`
+          `${import.meta.env.VITE_BE_URL}/common/logs?date=${dateISOString}`,
         );
         setLogsForDate(response.data);
       } catch (error) {
         console.error("Error fetching recent logs:", error);
         toast.error("Failed to fetch logs. Please try again.");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -122,6 +133,7 @@ const Log = () => {
         (logsForDate.length === 0 ? " justify-center" : "")
       } py-9 flex flex-col items-center`}
     >
+      {loading && <Loader />}
       {logsForDate.length > 0 ? (
         <>
           <div className="flex items-center justify-between gap-8 mb-5 w-11/12">

@@ -7,19 +7,28 @@ import { BsFileBarGraph } from "react-icons/bs";
 import { FaCookieBite } from "react-icons/fa6";
 import { AiOutlineSetting } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
+import { MdLogout } from "react-icons/md";
+import { useAuth } from "../contexts/AuthContext";
 
-const SideBar = () => {
+const SideBar = ({ setLoggingOut }) => {
   const { isSidebarOpen, closeSidebar } = useSidebar();
   const [selectedPage, setSelectedPage] = useState(
-    localStorage.getItem("currentPage") || "dashboard"
+    localStorage.getItem("currentPage") || "dashboard",
   );
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  if (!user) return null;
 
   const optionSelected = (option) => {
-    setSelectedPage(option);
-    localStorage.setItem("currentPage", option);
-    closeSidebar();
-    navigate(`/${option}`);
+    if (option !== "logout") {
+      setSelectedPage(option);
+      localStorage.setItem("currentPage", option);
+      closeSidebar();
+      navigate(`/${option}`);
+    } else {
+      setLoggingOut(true);
+    }
   };
 
   return (
@@ -104,6 +113,18 @@ const SideBar = () => {
           >
             <AiOutlineSetting />
             <span className="leading-none">Settings</span>
+          </li>
+          <li
+            onClick={(e) => {
+              optionSelected("logout");
+              e.stopPropagation();
+            }}
+            className={`p-3 sidebar-btn ${
+              selectedPage === "settings" ? "bg-accent" : ""
+            }`}
+          >
+            <MdLogout />
+            <span className="leading-none">Logout</span>
           </li>
           <li className="dark:text-gray-100 mt-8">Tip</li>
           <li className="dark:text-gray-100">

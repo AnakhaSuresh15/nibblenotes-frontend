@@ -1,5 +1,5 @@
 import foodImage from "../assets/food-image.png";
-import React, { useState } from "react";
+import { useState } from "react";
 import { tags } from "../constants/tags";
 import { TbEdit } from "react-icons/tb";
 import { MdDelete } from "react-icons/md";
@@ -8,12 +8,14 @@ import ConfirmationDialog from "./ConfirmationDialog";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
+import Loader from "./Loader";
 
 const RecentLogs = ({ recentMeals, setRecentMeals }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { api } = useAuth();
   const [selectedLogId, setSelectedLogId] = useState(null);
   const [dialogType, setDialogType] = useState(null); // "delete" | "edit"
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const openDeleteDialog = (logId) => {
@@ -30,13 +32,16 @@ const RecentLogs = ({ recentMeals, setRecentMeals }) => {
 
   const deleteLog = async (logId) => {
     try {
+      setLoading(true);
       await api.delete(
-        `${import.meta.env.VITE_BE_URL}/common/delete-log/${logId}`
+        `${import.meta.env.VITE_BE_URL}/common/delete-log/${logId}`,
       );
       toast.success("Log deleted successfully");
       setRecentMeals((prev) => prev.filter((log) => log._id !== logId));
     } catch (e) {
       toast.error("Failed to delete the log. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,6 +51,7 @@ const RecentLogs = ({ recentMeals, setRecentMeals }) => {
 
   return (
     <div>
+      {loading && <Loader />}
       {recentMeals.length > 0 ? (
         <div className="flex flex-col gap-4">
           {recentMeals.map((log) => {
@@ -113,6 +119,7 @@ const RecentLogs = ({ recentMeals, setRecentMeals }) => {
       ) : (
         <div>No meals logged recently.</div>
       )}
+      {loading && <Loader />}
 
       <ConfirmationDialog
         isOpen={isDialogOpen}

@@ -1,7 +1,8 @@
 // src/pages/Register.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const validate = () => {
     if (!firstName.trim()) return "First name is required";
@@ -115,18 +117,28 @@ const Register = () => {
           />
         </div>
 
-        <div className="mb-6 w-11/12">
+        <div className="mb-6 w-11/12 relative">
           <label className="block text-gray-700 dark:text-gray-300 mb-2">
             Password
           </label>
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent dark:placeholder-zinc-400"
             placeholder="Enter your password"
             autoComplete="new-password"
           />
+          {password && (
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-3/4 -translate-y-1/2 text-text cursor-pointer"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <FaRegEyeSlash /> : <FaRegEye />}
+            </button>
+          )}
         </div>
 
         <label className="flex items-center mb-4 w-11/12">
@@ -144,7 +156,7 @@ const Register = () => {
         <button
           type="submit"
           disabled={loading || !agree}
-          className="p-3 bg-accent text-text rounded-lg w-11/12 hover:brightness-90 mb-2 disabled:opacity-60"
+          className="p-3 bg-accent text-text rounded-lg w-11/12 hover:brightness-90 mb-2 disabled:opacity-60 cursor-pointer"
         >
           {loading ? "Creating account..." : "Register"}
         </button>

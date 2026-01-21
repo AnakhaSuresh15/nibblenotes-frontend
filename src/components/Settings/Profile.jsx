@@ -2,6 +2,8 @@ import userImage from "../../assets/user-default.jpg";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { toast } from "react-toastify";
+import { isMobile } from "react-device-detect";
+import Loader from "../Loader";
 
 const Profile = ({ settings }) => {
   const { api } = useAuth();
@@ -10,7 +12,9 @@ const Profile = ({ settings }) => {
     email: settings?.email || "",
   });
   const [showFutureFeature, setShowFutureFeature] = useState(false);
+  const [loading, setLoading] = useState(false);
   const onSaveChanges = async () => {
+    setLoading(true);
     try {
       await api.post(`${import.meta.env.VITE_BE_URL}/common/update-settings`, {
         name: formData.name,
@@ -19,6 +23,8 @@ const Profile = ({ settings }) => {
       toast.success("Settings saved successfully");
     } catch (error) {
       toast.error("Error saving user settings");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,10 +39,15 @@ const Profile = ({ settings }) => {
 
   return (
     <div className="flex flex-col">
-      <span className="text-xl font-semibold">Profile</span>
-      <div className="flex gap-8 mt-4">
+      {loading && <Loader />}
+      {isMobile && <span className="text-xl font-semibold">Profile</span>}
+      <div className="flex md:flex-row flex-col gap-8 mt-4 justify-center items-center">
         <div className="flex flex-col gap-2">
-          <img src={userImage} alt="User" className="w-25 h-25 rounded-full" />
+          <img
+            src={userImage}
+            alt="User"
+            className="w-25 h-25 rounded-full self-center"
+          />
           <button
             className="cursor-pointer p-2 bg-accent rounded-xl text-primary hover:opacity-90 transition-opacity duration-200"
             onClick={() => {
@@ -51,7 +62,7 @@ const Profile = ({ settings }) => {
             </span>
           )}
         </div>
-        <div className="flex flex-col gap-4 justify-center w-3/4">
+        <div className="flex flex-col gap-4 justify-center md:w-3/4 w-11/12">
           <div className="flex flex-col">
             <span className="font-medium">Name</span>
             <input

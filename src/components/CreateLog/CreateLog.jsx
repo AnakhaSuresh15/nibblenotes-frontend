@@ -13,6 +13,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { supabase } from "../../supabaseClient";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
+import Loader from "../Loader";
 
 const CreateLog = () => {
   const { isSidebarOpen } = useSidebar();
@@ -173,7 +174,7 @@ const CreateLog = () => {
           `${import.meta.env.VITE_BE_URL}/common/edit-log/${logId}`,
           {
             ...updatedFields,
-          }
+          },
         );
         toast.success("Log edited successfully!");
         navigate("/dashboard");
@@ -224,6 +225,7 @@ const CreateLog = () => {
           isSidebarOpen ? "w-3/4 ml-[25%] px-20" : "w-full ml-0 md:px-24 px-6"
         } py-9 flex flex-col`}
       >
+        {isLoading && <Loader />}
         <h1 className="text-2xl pb-5 text-text">Create Log</h1>
         <form
           className="flex md:flex-row flex-col flex-nowrap gap-4 flex-1"

@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
 import AvgMealsPerDayCard from "./Insights/AvgMealsPerDayCard";
+import Loader from "./Loader";
 
 function Dashboard() {
   const { isSidebarOpen, closeSidebar } = useSidebar();
@@ -24,6 +25,7 @@ function Dashboard() {
   const [recentMeals, setRecentMeals] = useState([]);
   const [mealsPerDay, setMealsPerDay] = useState([]);
   const [avgMealsPerDay, setAvgMealsPerDay] = useState(0);
+  const [loading, setLoading] = useState(false);
   const getGreetingText = () => {
     const currentHour = new Date().getHours();
     if (currentHour < 12) return "Good Morning";
@@ -38,12 +40,13 @@ function Dashboard() {
   };
 
   useEffect(() => {
+    setLoading(true);
     isSidebarOpen && closeSidebar();
     const fetchDashboardData = async () => {
       try {
         // Fetch summary data from backend
         const response = await api.get(
-          `${import.meta.env.VITE_BE_URL}/dashboard/summary`
+          `${import.meta.env.VITE_BE_URL}/dashboard/summary`,
         );
 
         if (response && response.data) {
@@ -58,6 +61,8 @@ function Dashboard() {
       } catch (error) {
         console.error("Error fetching summary:", error);
         toast.error("Failed to fetch dashboard summary. Please try again.");
+      } finally {
+        setLoading(false);
       }
     };
     fetchDashboardData();
@@ -81,6 +86,7 @@ function Dashboard() {
         </button>
       </div>
       <i className="text-text">{formattedDate}</i>
+      {loading && <Loader />}
       <div className="flex flex-col">
         <div className="py-3 flex-row flex flex-nowrap justify-between gap-1.5 md:gap-4 md:text-sm text-xs">
           <div className="card basis-1/3 md:p-6 p-3 md:rounded-3xl flex flex-col">

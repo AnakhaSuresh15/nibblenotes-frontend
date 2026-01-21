@@ -46,6 +46,17 @@ const clearStoredUser = () => {
 
 const AuthContext = createContext(null);
 
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((p) => {
+    if (error) p.reject(error);
+    else p.resolve(token);
+  });
+  failedQueue = [];
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(readStoredUser());
   const [accessToken, setAccessToken] = useState(readStoredAccessToken());
@@ -78,49 +89,61 @@ export const AuthProvider = ({ children }) => {
       async (error) => {
         const original = error.config;
 
-        // 🔴 If refresh itself failed → STOP EVERYTHING
-        if (
-          error.response?.status === 401 &&
-          original.url?.includes("/auth/refresh")
-        ) {
+        if (error.response?.status !== 401) {
+          return Promise.reject(error);
+        }
+
+        // If refresh itself fails → logout
+        if (original.url?.includes("/auth/refresh")) {
           await hardLogout();
           return Promise.reject(error);
         }
 
-        // 🔴 Retry once for normal API calls
-        if (
-          error.response?.status === 401 &&
-          !original._retry &&
-          !original.url?.includes("/auth/refresh")
-        ) {
-          original._retry = true;
-
-          try {
-            const r = await api.post("/auth/refresh");
-            const newToken = r.data?.accessToken;
-            const maybeUser = r.data?.user;
-
-            if (!newToken) throw new Error("No token from refresh");
-
-            const remember = localStorage.getItem(REMEMBER_KEY) === "true";
-            setAccessToken(newToken);
-            storeAccessToken(newToken, remember);
-
-            if (maybeUser) {
-              setUser(maybeUser);
-              storeUser(maybeUser, remember);
-            }
-
-            original.headers.Authorization = `Bearer ${newToken}`;
-            return api(original);
-          } catch (e) {
-            await hardLogout();
-            return Promise.reject(e);
-          }
+        // If refresh already in progress → queue request
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({
+              resolve: (token) => {
+                original.headers.Authorization = `Bearer ${token}`;
+                resolve(api(original));
+              },
+              reject,
+            });
+          });
         }
 
-        return Promise.reject(error);
-      }
+        original._retry = true;
+        isRefreshing = true;
+
+        try {
+          const r = await api.post("/auth/refresh");
+          const newToken = r.data?.accessToken;
+          const maybeUser = r.data?.user;
+
+          if (!newToken) throw new Error("No token from refresh");
+
+          const remember = localStorage.getItem(REMEMBER_KEY) === "true";
+          setAccessToken(newToken);
+          storeAccessToken(newToken, remember);
+
+          if (maybeUser) {
+            setUser(maybeUser);
+            storeUser(maybeUser, remember);
+          }
+
+          api.defaults.headers.Authorization = `Bearer ${newToken}`;
+          processQueue(null, newToken);
+
+          original.headers.Authorization = `Bearer ${newToken}`;
+          return api(original);
+        } catch (err) {
+          processQueue(err, null);
+          await hardLogout();
+          return Promise.reject(err);
+        } finally {
+          isRefreshing = false;
+        }
+      },
     );
 
     return () => {

@@ -9,12 +9,14 @@ import MostCommonTimeCard from "./MostCommonTimeCard";
 import MealsPerDayCard from "./MealsPerDayCard";
 import MealDistributionCard from "./MealDistributionCard";
 import TopData from "./TopData";
+import Loader from "../Loader";
 
 const Insights = () => {
   const { isSidebarOpen } = useSidebar();
   const { api } = useAuth();
   const [insightsData, setInsightsData] = useState(null);
   const [timeFilter, setTimeFilter] = useState(30);
+  const [loading, setLoading] = useState(false);
 
   const handleTimeFilterClick = (time) => {
     if (time !== timeFilter) {
@@ -24,11 +26,12 @@ const Insights = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const data = await api.get(
           `${
             import.meta.env.VITE_BE_URL
-          }/common/insights-data?timeFilter=${timeFilter}`
+          }/common/insights-data?timeFilter=${timeFilter}`,
         );
         if (data) {
           setInsightsData(data.data);
@@ -36,6 +39,8 @@ const Insights = () => {
       } catch (error) {
         console.error("Error fetching insights data:", error);
         toast.error("Failed to fetch insights data. Please try again.");
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -47,6 +52,7 @@ const Insights = () => {
         isSidebarOpen ? "w-3/4 ml-[25%] px-16" : "w-full ml-0 md:px-24 px-6"
       } py-9 flex flex-col`}
     >
+      {loading && <Loader />}
       <div className="flex justify-between">
         <h1 className="text-2xl pb-2 text-text">Insights</h1>
         {/* <button

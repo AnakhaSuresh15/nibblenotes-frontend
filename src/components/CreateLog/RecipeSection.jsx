@@ -43,7 +43,7 @@ const RecipeSection = ({
 
     const timeout = setTimeout(async () => {
       const res = await api.get(
-        `${import.meta.env.VITE_BE_URL}/create-log/ingredients?query=${query}`
+        `${import.meta.env.VITE_BE_URL}/create-log/ingredients?query=${query}`,
       );
       const data = await res.data;
       setSuggestions(data);
@@ -118,7 +118,7 @@ const RecipeSection = ({
                           onClick={() =>
                             setValue(
                               "ingredients",
-                              field.value.filter((i) => i._id !== item._id)
+                              field.value.filter((i) => i._id !== item._id),
                             )
                           }
                         >

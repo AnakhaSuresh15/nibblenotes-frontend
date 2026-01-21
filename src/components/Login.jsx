@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const { login } = useAuth();
@@ -14,6 +15,7 @@ const Login = () => {
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -56,12 +58,12 @@ const Login = () => {
             autoComplete="email"
           />
         </div>
-        <div className="mb-6 md:w-11/12 w-full">
+        <div className="mb-6 md:w-11/12 w-full relative">
           <label className="block text-gray-700 dark:text-gray-300 mb-2">
             Password
           </label>
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="password"
             className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent dark:placeholder-zinc-400"
             placeholder="Enter your password"
@@ -70,6 +72,16 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
           />
+          {password && (
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-3/4 -translate-y-1/2 text-text cursor-pointer"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <FaRegEyeSlash /> : <FaRegEye />}
+            </button>
+          )}
         </div>
         <label className="flex items-center mb-4">
           <input

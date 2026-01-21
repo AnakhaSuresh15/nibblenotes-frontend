@@ -1,13 +1,27 @@
-import React, { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect, use } from "react";
+import { useAuth } from "./AuthContext";
 
 const SidebarContext = createContext();
 
 export function SidebarProvider({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { user, loading } = useAuth();
 
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-  const openSidebar = () => setIsSidebarOpen(true);
+  const toggleSidebar = () => {
+    if (!user) return;
+    setIsSidebarOpen((prev) => !prev);
+  };
+  const openSidebar = () => {
+    if (!user) return;
+    setIsSidebarOpen(true);
+  };
   const closeSidebar = () => setIsSidebarOpen(false);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      setIsSidebarOpen(false);
+    }
+  }, [user, loading]);
 
   return (
     <SidebarContext.Provider

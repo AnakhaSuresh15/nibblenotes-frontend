@@ -10,9 +10,9 @@ const ConsistencyCard = ({
     <div className="card md:w-1/4 w-full p-6 rounded-3xl flex justify-between">
       <div className="flex flex-col justify-between">
         <span>Consistency</span>
-        {noOfDaysLogged === null ||
+        {noOfDaysLogged === 0 ||
         timeFilter === null ||
-        consistencyChangePercent === null ? (
+        consistencyChangePercent === 0 ? (
           <div className="text-center text-gray-500">No data available</div>
         ) : (
           <>
