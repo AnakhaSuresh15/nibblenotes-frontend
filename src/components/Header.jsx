@@ -110,7 +110,9 @@ const Header = () => {
           </button>
         )}
 
-        {isSidebarOpen && <SideBar setLoggingOut={setLoggingOut} />}
+        {isSidebarOpen && (
+          <SideBar isLoggingOut={loggingOut} setLoggingOut={setLoggingOut} />
+        )}
 
         <h1
           className="text-xl font-semibold dark:text-gray-100 leading-none cursor-pointer"

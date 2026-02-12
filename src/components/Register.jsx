@@ -67,6 +67,7 @@ const Register = () => {
   return (
     <div className="bg-primary h-full w-full flex items-center justify-center text-white min-h-screen p-6">
       <form
+        autoComplete="off"
         onSubmit={handleSubmit}
         className="max-w-md p-6 bg-login-card-bg rounded-lg shadow-lg flex flex-col justify-center items-center md:min-w-1/3 w-11/12 text-text"
       >

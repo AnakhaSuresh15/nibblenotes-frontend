@@ -20,7 +20,7 @@ const TABS = [
     label: "Preferences",
     icon: <MdSettingsInputComposite />,
   },
-  { key: "account", label: "Account", icon: <FaLock /> },
+  { key: "account", label: "Security & Account", icon: <FaLock /> },
   { key: "notifications", label: "Notifications", icon: <IoMdNotifications /> },
   { key: "logout", label: "Logout", icon: <MdLogout /> },
 ];
@@ -42,6 +42,7 @@ const Settings = () => {
         setSettings(response.data);
       } catch (error) {
         console.error("Error fetching user settings:", error);
+        toast.error("Failed to load settings. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -106,7 +107,9 @@ const Settings = () => {
         <div className="card md:basis-2/3 md:p-6 p-3 md:rounded-3xl flex flex-col gap-6">
           {selected === "profile" && <Profile settings={settings} />}
           {selected === "preferences" && <Preferences />}
-          {selected === "account" && <Account />}
+          {selected === "account" && (
+            <Account email={settings?.email} createdAt={settings?.createdAt} />
+          )}
           {selected === "notifications" && <Notifications />}
           {selected === "logout" && (
             <div className="flex flex-col items-center justify-center h-full">

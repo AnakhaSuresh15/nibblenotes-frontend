@@ -40,19 +40,21 @@ const TopData = ({ data = [], type }) => {
             >
               <span>
                 {type === "tags"
-                  ? TAG_MAP[item[valueKey]] ?? item[valueKey]
+                  ? (TAG_MAP[item[valueKey]] ?? item[valueKey])
                   : type === "feedback"
-                  ? FEEDBACK_MAP[item[valueKey]] ?? item[valueKey]
-                  : item[valueKey]}
+                    ? (FEEDBACK_MAP[item[valueKey]] ?? item[valueKey])
+                    : item[valueKey]}
               </span>
               {type === "tags" && (
                 <span className="bg-accent rounded-2xl"></span>
               )}
               <span>
-                {" "}
-                {item.count}{" "}
+                {item.count}
                 {type === "meals" && (
-                  <span className="font-semibold"> times</span>
+                  <span className="font-semibold">
+                    {" "}
+                    {item.count === 1 ? "time" : "times"}
+                  </span>
                 )}
               </span>
             </li>

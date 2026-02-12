@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { PiCaretDoubleRight } from "react-icons/pi";
 
-const EmojiPicker = ({ selectedMood, setMood }) => {
+const EmojiPicker = ({ selectedMood, setMood, top }) => {
   const emojiList = [
     { name: "happy", emoji: "😄" },
     { name: "content", emoji: "😊" },
@@ -62,7 +62,7 @@ const EmojiPicker = ({ selectedMood, setMood }) => {
       {isDropdownOpen && (
         <div
           ref={pickerRef}
-          className="flex flex-col gap-3 bg-cards-bg py-4 px-3 shadow-lg absolute top-8 rounded-lg z-[999]"
+          className={`flex flex-col gap-3 bg-cards-bg py-4 px-3 shadow-lg absolute top-${top} rounded-lg z-[999]`}
         >
           <div className="flex justify-between">
             <div className="text-sm">Select Mood</div>

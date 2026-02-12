@@ -9,7 +9,7 @@ const ConfirmationDialog = ({
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 bg-opacity-50 z-40">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-11/12 max-w-md">
+      <div className="bg-color-secondary rounded-lg shadow-lg p-6 w-11/12 max-w-md">
         <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
           {title}
         </h2>

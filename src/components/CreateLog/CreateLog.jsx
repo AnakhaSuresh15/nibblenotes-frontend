@@ -14,6 +14,7 @@ import { supabase } from "../../supabaseClient";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import Loader from "../Loader";
+import { isMobile } from "react-device-detect";
 
 const CreateLog = () => {
   const { isSidebarOpen } = useSidebar();
@@ -31,8 +32,10 @@ const CreateLog = () => {
   const [preparationMethod, setPreparationMethod] = useState("");
   const [servings, setServings] = useState(1);
   const [calories, setCalories] = useState(0);
+  const [isRecipeLoading, setIsRecipeLoading] = useState(false);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecipeFromAI, setIsRecipeFromAI] = useState(false);
 
   const compareFn = (arg1, arg2) => {
     return JSON.stringify(arg1) === JSON.stringify(arg2);
@@ -57,6 +60,7 @@ const CreateLog = () => {
     control,
     watch,
     formState: { errors, isValid, dirtyFields },
+    setValue,
   } = methods;
 
   async function uploadMealImage(file, userId) {
@@ -74,6 +78,8 @@ const CreateLog = () => {
 
     return data.publicUrl;
   }
+
+  const mealName = watch("dishName");
 
   useEffect(() => {
     if (!editLog || !logId) return;
@@ -230,6 +236,7 @@ const CreateLog = () => {
         <form
           className="flex md:flex-row flex-col flex-nowrap gap-4 flex-1"
           onSubmit={handleSubmit(onSubmit)}
+          autoComplete="off"
         >
           <div className="flex flex-col w-full md:w-1/2 gap-8">
             <div className="card h-1/2 flex flex-col justify-center items-center md:rounded-xl p-4 cursor-pointer">
@@ -250,7 +257,7 @@ const CreateLog = () => {
                 )}
               />
             </div>
-            <div className="flex flex-col text-lg card md:rounded-xl">
+            <div className="flex flex-col text-lg card md:rounded-xl relative">
               <input
                 className="p-3 card md:rounded-xl w-full"
                 placeholder="Enter Meal Name"
@@ -258,6 +265,55 @@ const CreateLog = () => {
                   required: "Meal name is required",
                 })}
               ></input>
+              {mealName && (
+                <button
+                  type="button"
+                  className="absolute md:text-sm text-xs bg-accent dark:text-gray-200 text-gray-600 py-1 px-3 rounded-lg font-semibold hover:brightness-90 cursor-pointer right-4 md:top-3 top-4 md:w-1/3"
+                  onClick={async () => {
+                    try {
+                      setIsRecipeLoading(true);
+                      setIsRecipeFromAI(true);
+
+                      const response = await api.post(
+                        `${import.meta.env.VITE_BE_URL}/ai/generate-recipe`,
+                        { mealName },
+                      );
+
+                      const { ingredients, preparation, calories } =
+                        response.data;
+
+                      setValue("ingredients", []);
+                      setPreparationMethod("");
+                      setCalories(0);
+
+                      setValue(
+                        "ingredients",
+                        ingredients
+                          .split(/,|\./)
+                          .filter((ing) => ing.trim() !== "")
+                          .map((ing) => ({
+                            _id: Math.random().toString(36).substr(2, 9),
+                            name: ing.trim(),
+                          })),
+                      );
+
+                      setPreparationMethod(preparation);
+                      setCalories(calories);
+                    } catch (error) {
+                      console.error(error);
+                      toast.error(
+                        "Failed to generate recipe. Please try again.",
+                      );
+                    } finally {
+                      setIsRecipeLoading(false);
+                    }
+                  }}
+                >
+                  {isMobile
+                    ? "✨ Generate Recipe"
+                    : "✨ Generate Recipe with AI"}
+                </button>
+              )}
               {errors.dishName && (
                 <span className="text-red-500 text-sm pl-3">
                   {errors.dishName.message}
@@ -286,6 +342,9 @@ const CreateLog = () => {
               setServings={setServings}
               calories={calories}
               setCalories={setCalories}
+              isRecipeLoading={isRecipeLoading}
+              isRecipeFromAI={isRecipeFromAI}
+              setIsRecipeFromAI={setIsRecipeFromAI}
             />
           </div>
           <div className="flex flex-col w-full md:w-1/2 gap-8">
@@ -296,6 +355,7 @@ const CreateLog = () => {
                 <EmojiPicker
                   selectedMood={moodBeforeSelection}
                   setMood={setMoodBeforeSelection}
+                  top={8}
                 />
               </div>
 
@@ -304,6 +364,7 @@ const CreateLog = () => {
                 <EmojiPicker
                   selectedMood={moodAfterSelection}
                   setMood={setMoodAfterSelection}
+                  top={8}
                 />
               </div>
             </div>

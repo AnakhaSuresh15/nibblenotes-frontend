@@ -36,6 +36,7 @@ const Login = () => {
       <form
         className="max-w-md md:w-full py-10 px-6 bg-login-card-bg rounded-lg shadow-lg flex flex-col justify-center items-center text-text"
         onSubmit={submit}
+        autoComplete="off"
       >
         <h2 className="text-2xl font-bold mb-6 text-center">
           Login to NibbleNotes

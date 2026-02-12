@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { MdLogout } from "react-icons/md";
 import { useAuth } from "../contexts/AuthContext";
 
-const SideBar = ({ setLoggingOut }) => {
+const SideBar = ({ isLoggingOut, setLoggingOut }) => {
   const { isSidebarOpen, closeSidebar } = useSidebar();
   const [selectedPage, setSelectedPage] = useState(
     localStorage.getItem("currentPage") || "dashboard",
@@ -119,9 +119,7 @@ const SideBar = ({ setLoggingOut }) => {
               optionSelected("logout");
               e.stopPropagation();
             }}
-            className={`p-3 sidebar-btn ${
-              selectedPage === "settings" ? "bg-accent" : ""
-            }`}
+            className={`p-3 sidebar-btn ${isLoggingOut ? "bg-accent" : ""}`}
           >
             <MdLogout />
             <span className="leading-none">Logout</span>
